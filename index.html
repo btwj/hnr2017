@@ -4,13 +4,26 @@
 	<meta charset="UTF-8">
 	<title>HnR 2017</title>
 	<script src="tracking-min.js"></script>
+	<style>
+		#container {
+			height: 450px;
+			width: 600px;
+		}
+
+		#camera, #screen {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+		}
+	</style>
 </head>
 <body>
-	 <video id="camera" width="400" height="300" preload autoplay loop muted></video>
-	 <canvas id="screen" width="600" height="450"></canvas>
-	 <script>
-	 	
-
+	<div id="container">
+		<video id="camera" width="600" height="450" preload autoplay loop muted></video>
+		<canvas id="screen" width="600" height="450"></canvas>
+	</div>
+	 
+	<script>
 	 	tracking.ColorTracker.registerColor('tracker', function (r, g, b) {
 	 		var ir = 130, ig = 60, ib = 60;
 	 		var dr = (ir - r)/256;
@@ -19,7 +32,8 @@
 	 		return (dr*dr + dg*dg + db*db < 0.010);
 	 	});
 
-	 	var tracker = new tracking.ColorTracker(['tracker']);
+	 	var tracker = new tracking.ColorTracker(['yellow']);
+	 	tracker.setMinDimension(10);
 
 	 	var camera = document.getElementById('camera');
 	 	var canvas = document.getElementById('screen');
@@ -28,10 +42,21 @@
 		tracking.track('#camera', tracker, {camera: true});
 
 		tracker.on('track', function (e) {
+			context.clearRect(0, 0, 600, 450);
 			e.data.forEach(function(rect) {
 				console.log(rect.x, rect.y, rect.height, rect.width);
+
+				var cx = rect.x + rect.width/2;
+				var cy = rect.y + rect.height/2;
+				var r = (rect.height + rect.width)/4;
+				context.strokeStyle = "#ffffff";
+
+				context.beginPath();
+				context.arc(cx, cy, r, 0, Math.PI*2, true);
+				context.stroke();
+				context.closePath();
 			});
-		})
+		});
 	 </script>
 </body>
 </html>
